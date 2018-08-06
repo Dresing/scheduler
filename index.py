@@ -1,5 +1,6 @@
 from random import randint
-
+from random import shuffle
+from random import sample
 class Schedule:
 
     def __init__(self):
@@ -15,42 +16,79 @@ class Schedule:
     def assign(self, room, time, team):
         self.setting[room][time].append(team)
 
-    def isOccupied(self, room, time):
-        return True if len(self.setting[room][time]) > 1 else False
+    def numFreeSlots(self, room, time):
+        return 2 - len(self.setting[room][time])
+
+    def numfreeSlotsAtRoom(self, room):
+
+        count = 0
+
+        for i in range(self.time):
+            count += len(self.setting[room][i])
+
+
+        return self.teams - count
 
     def findFreeRoom(self, time):
 
-        available = []
+        two = []
+
+        one = []
 
         for i in range(self.rooms):
-            if(not self.isOccupied(i, time)):
-                available.append(i)
+            if(self.numFreeSlots(i, time) == 1):
+                one.append(i)
 
-        if len(available) == 0:
-            return False
+            if(self.numFreeSlots(i, time) == 2):
+                two.append(i)
 
-        return available[randint(0, len(available) - 1)]
-
-
-
+        if self.numfreeSlotsAtRoom(i) == 0:
+            return -1
 
 
+        return 0
+        #if(len(two) > 6):
+            #return two[randint(0, len(two) - 1)]
+
+
+
+    def __str__(self):
+        s = [[str(e) for e in row] for row in self.setting]
+        lens = [max(map(len, col)) for col in zip(*s)]
+        fmt = '\t'.join('{{:{}}}'.format(x) for x in lens)
+        table = [fmt.format(*row) for row in s]
+        return str('\n'.join(table))
 
 
 
 
-s = Schedule()
 
-for i in range(1000):
+def reset():
+    s = Schedule()
 
-    for i in range(19):
-        for j in range(13):
+    teams = sample(range(19), len(range(19)))
+    times = sample(range(13), len(range(13)))
+
+
+    for i in teams:
+        for j in times:
             room = s.findFreeRoom(j)
-            if not room:
-                print('not')
-                continue
+
+            if room == -1:
+                return False
+                print('happens')
 
             s.assign(room, j, i)
 
+    return s
 
-    print('Found')
+
+
+for i in range(10000):
+    val = reset()
+
+    if not val:
+        continue
+
+    print(val)
+    exit()
